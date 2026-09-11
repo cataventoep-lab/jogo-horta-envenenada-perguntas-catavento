@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Horta Envenenada 🌱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ewert&family=Rye&family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#8fd3ff; --sky2:#c8ecff;
+    --grass:#7ac74f; --grass-dp:#4e9a2f;
+    --soil:#9a6238; --soil-dp:#5f3a1e; --soil-row:#7c4a28; --soil-lt:#b07a49;
+    --sun:#ffd23f; --tomato:#e0553a; --tomato-dp:#b23c26;
+    --wood:#b98a52; --wood-dp:#7c4f21;
+    --leaf:#4e9a2f; --leaf-dp:#2f6b1d;
+    --ink:#3f2a17;
+    --p1:#2f79e0; --p2:#e0553a;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overflow:hidden;}
+  body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);background:#bfe9ff;
+    height:100dvh;position:relative;-webkit-font-smoothing:antialiased;}
+
+  /* ================= FARM BACKGROUND ================= */
+  .bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .bg .sky{position:absolute;inset:0;background:linear-gradient(180deg,#8fd3ff 0%, #b9e6ff 34%, #dcf3d6 56%, #bfe59a 72%, #9fd472 100%);}
+  .bg .sun{position:absolute;top:5%;left:7%;width:clamp(58px,10vw,104px);height:clamp(58px,10vw,104px);border-radius:50%;
+    background:radial-gradient(circle at 40% 38%, #fff6b0, #ffd23f 62%, #ffb300);
+    box-shadow:0 0 42px 12px rgba(255,205,60,.55);}
+  .bg .cloud{position:absolute;width:110px;height:34px;border-radius:999px;background:#fff;opacity:.92;
+    box-shadow:28px 8px 0 -5px #fff, -30px 7px 0 -8px #fff;}
+  .bg .cloud.c1{top:12%;right:12%;transform:scale(1.15);}
+  .bg .cloud.c2{top:24%;left:30%;transform:scale(.72);opacity:.8;}
+  .bg .cloud.c3{top:8%;left:52%;transform:scale(.55);opacity:.7;}
+  .bg .hills{position:absolute;left:-6%;right:-6%;bottom:20%;height:34%;
+    background:radial-gradient(120% 120% at 30% 100%, #86cf52 0 60%, transparent 61%),
+               radial-gradient(120% 120% at 78% 100%, #79c247 0 62%, transparent 63%);}
+  .bg .field{position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(180deg,#7ac74f,#57a531);
+    box-shadow:inset 0 6px 0 rgba(255,255,255,.18);}
+  .bg .field::before{content:"";position:absolute;inset:0;opacity:.4;
+    background:repeating-linear-gradient(92deg, rgba(78,154,47,.0) 0 22px, rgba(47,107,29,.5) 22px 24px);}
+  .bg .fence{position:absolute;left:0;right:0;bottom:20%;height:46px;
+    background-image:repeating-linear-gradient(90deg, #c99a5e 0 9px, transparent 9px 64px);}
+  .bg .fence::before,.bg .fence::after{content:"";position:absolute;left:0;right:0;height:8px;background:#c99a5e;box-shadow:0 1px 0 rgba(120,80,40,.35);}
+  .bg .fence::before{top:8px;} .bg .fence::after{top:28px;}
+  .bg .vignette{position:absolute;inset:0;box-shadow:inset 0 0 220px rgba(80,50,20,.28);}
+
+  /* ================= APP (one screen) ================= */
+  .app{position:relative;z-index:2;max-width:1180px;margin:0 auto;height:100dvh;
+    display:flex;flex-direction:column;padding:6px 12px 10px;overflow:hidden;}
+
+  .titlebar{position:relative;text-align:center;margin-bottom:4px;flex:none;}
+  .title{font-family:'Ewert',cursive;font-weight:400;line-height:1.05;letter-spacing:1px;
+    font-size:clamp(1.7rem,5.4vw,3.1rem);color:#7a4a24;
+    text-shadow:
+      -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff,
+      0 -3px 0 #fff, 0 3px 0 #fff, -3px 0 0 #fff, 3px 0 0 #fff,
+      0 6px 0 #fff, 0 9px 12px rgba(80,45,15,.45);
+    transform:rotate(-1.5deg);}
+  .title .venom{color:#6b3f1e;}
+  .title .drip{position:relative;}
+  .title .drip::after{content:"";position:absolute;left:5%;right:5%;bottom:-.12em;height:.3em;
+    background:radial-gradient(circle at 12% 0, #7ec24a 42%, transparent 46%) 0 0/20px 100% repeat-x;
+    filter:drop-shadow(0 2px 1px rgba(30,80,0,.4));opacity:.95;}
+  .subtitle{margin-top:5px;font-weight:700;font-size:clamp(.78rem,2.1vw,1.05rem);color:#3d5a1c;
+    background:rgba(255,255,255,.72);display:inline-block;padding:4px 15px;border-radius:999px;
+    box-shadow:0 3px 0 rgba(90,130,50,.3);max-width:94vw;}
+  .fs-btn{position:absolute;top:0;right:0;z-index:5;font-family:'Baloo 2',sans-serif;font-weight:800;
+    font-size:.95rem;line-height:1;cursor:pointer;color:var(--leaf-dp);background:rgba(255,255,255,.92);
+    border:2px solid #fff;border-radius:12px;padding:8px 12px;white-space:nowrap;
+    box-shadow:0 4px 0 rgba(90,120,50,.4),0 7px 12px rgba(60,90,20,.2);transition:transform .1s;}
+  .fs-btn:hover{filter:brightness(1.03);} .fs-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(90,120,50,.4);}
+  .fs-btn:focus-visible{outline:3px solid var(--tomato);outline-offset:2px;}
+  .credit{position:absolute;top:0;left:0;z-index:5;font-family:'Rye',cursive;font-size:.78rem;line-height:1;
+    color:#7a4a24;background:rgba(255,255,255,.92);border:2px solid #fff;border-radius:12px;padding:7px 11px;
+    white-space:nowrap;transform:rotate(-3deg);
+    box-shadow:0 4px 0 rgba(150,110,60,.35),0 7px 12px rgba(120,70,25,.2);}
+  @media (max-width:560px){ .credit{font-size:.68rem;padding:5px 8px;} }
+
+  /* status bar */
+  .statusbar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+    margin:0 auto 6px;max-width:840px;flex:none;}
+  .status-msg{flex:1;min-width:200px;text-align:center;font-weight:800;font-size:clamp(.9rem,2.5vw,1.2rem);
+    color:#fff;background:linear-gradient(180deg,#8a5a34,#66401f);
+    padding:9px 16px;border-radius:16px;border:3px solid #fff;
+    box-shadow:0 5px 0 #4e2f16, 0 9px 14px rgba(60,35,10,.28);min-height:44px;
+    display:flex;align-items:center;justify-content:center;transition:background .25s;}
+  .status-msg.p1{background:linear-gradient(180deg,#5aa9ff,#2f79e0);box-shadow:0 5px 0 #205bb0,0 9px 14px rgba(20,60,120,.28);}
+  .status-msg.p2{background:linear-gradient(180deg,#ff8f6a,#e0553a);box-shadow:0 5px 0 #b23c26,0 9px 14px rgba(120,40,20,.28);}
+  .status-msg.warn{background:linear-gradient(180deg,#7ac74f,#4e9a2f);color:#123400;box-shadow:0 5px 0 #2f6b1d,0 9px 14px rgba(20,60,0,.3);}
+
+  .btn{font-family:'Baloo 2',sans-serif;font-weight:800;cursor:pointer;border:none;color:#fff;
+    border-radius:15px;padding:11px 22px;font-size:1.05rem;transition:transform .1s, filter .2s;
+    box-shadow:0 5px 0 rgba(0,0,0,.22), 0 9px 14px rgba(0,0,0,.18);}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.22),0 6px 10px rgba(0,0,0,.18);}
+  .btn:focus-visible{outline:4px solid #fff;outline-offset:3px;}
+  .btn-start{background:linear-gradient(180deg,#8fe05a,#4e9a2f);color:#123400;box-shadow:0 5px 0 #2f6b1d,0 9px 14px rgba(20,90,0,.28);}
+  .btn-go{background:linear-gradient(180deg,#ffcf6a,#f0a52c);color:#5a3a00;box-shadow:0 5px 0 #b87814,0 9px 14px rgba(150,90,0,.3);}
+  .btn-answer{background:linear-gradient(180deg,#8fe05a,#4e9a2f);color:#123400;box-shadow:0 5px 0 #2f6b1d,0 9px 14px rgba(20,90,0,.3);}
+  .btn-again{background:linear-gradient(180deg,#ffcf6a,#f0a52c);color:#5a3a00;box-shadow:0 5px 0 #b87814,0 9px 14px rgba(150,90,0,.28);}
+
+  /* layout */
+  .layout{display:grid;grid-template-columns:1fr 250px;gap:14px;align-items:stretch;flex:1 1 auto;min-height:0;width:100%;}
+  @media (max-width:900px){ .layout{display:flex;flex-direction:column;gap:8px;} }
+
+  /* ================= HORTA (garden bed) ================= */
+  .board-wrap{position:relative;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;padding-top:16px;}
+  @media (max-width:900px){ .board-wrap{flex:1 1 auto;} }
+  .tray{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(4px,1.1vw,12px);
+    padding:clamp(12px,2.2vw,22px);border-radius:24px;font-size:34px;
+    background:
+      repeating-linear-gradient(180deg, var(--soil) 0 20px, var(--soil-row) 20px 40px),
+      linear-gradient(180deg,var(--soil-lt),var(--soil));
+    box-shadow:0 10px 0 #4e2f16, 0 16px 26px rgba(60,35,10,.4),
+      inset 0 0 0 5px #b98a52, inset 0 0 0 9px #7c4f21, inset 0 8px 20px rgba(40,20,5,.35);}
+  .tray::before{content:"🌱 Horta";position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-1deg);
+    font-family:'Rye',cursive;font-size:.82rem;letter-spacing:.5px;color:#fff;background:var(--leaf);
+    padding:4px 16px;border-radius:999px;box-shadow:0 4px 0 var(--leaf-dp);white-space:nowrap;}
+  .tray.shake{animation:shake .5s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px) rotate(-1deg)}40%{transform:translateX(10px) rotate(1deg)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+
+  .veggie{position:relative;border:none;cursor:pointer;padding:0;border-radius:16px;width:100%;height:100%;
+    min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;font-size:inherit;line-height:1;
+    background:radial-gradient(circle at 50% 118%, rgba(0,0,0,.28) 0 38%, transparent 42%),
+      radial-gradient(circle at 50% 40%, rgba(255,255,255,.14), transparent 60%);
+    transition:transform .14s;}
+  .veggie .emo{filter:drop-shadow(0 4px 3px rgba(40,20,5,.45));animation:bob 4s ease-in-out infinite;}
+  .veggie:nth-child(2n) .emo{animation-delay:-1.2s;} .veggie:nth-child(3n) .emo{animation-delay:-2.3s;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .veggie:hover:not(.eaten):not([disabled]) .emo{animation:wob .5s ease-in-out infinite;}
+  @keyframes wob{0%,100%{transform:rotate(-6deg) scale(1.06)}50%{transform:rotate(6deg) scale(1.1)}}
+  .veggie:focus-visible{outline:4px solid var(--leaf);outline-offset:2px;}
+  .veggie[disabled]{cursor:default;}
+  .board-locked .veggie{filter:brightness(.98) saturate(.85);}
+  .veggie.eaten{cursor:default;}
+  .veggie.eaten .emo{animation:none;opacity:.32;filter:grayscale(.55) drop-shadow(0 2px 2px rgba(40,20,5,.3));transform:scale(.8);}
+  .veggie .badge{position:absolute;inset:0;display:none;align-items:center;justify-content:center;}
+  .veggie .basket{font-size:.62em;}
+  .veggie.eaten .badge.basket{display:flex;animation:pop .4s cubic-bezier(.2,1.4,.4,1);}
+  .veggie .skull{font-size:.78em;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));}
+  .veggie.poison-reveal .badge.skull{display:flex;animation:pop .5s cubic-bezier(.2,1.4,.4,1);}
+  @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+  /* ================= SCOREBOARD ================= */
+  .sidebar{display:flex;flex-direction:column;gap:10px;min-height:0;min-width:0;justify-content:center;}
+  @media (max-width:900px){ .sidebar{flex:none;flex-direction:row;flex-wrap:nowrap;align-items:stretch;gap:8px;}
+    .sidebar .vs{display:none;} .sidebar .tip{display:none;} .player{flex:1;min-width:0;} }
+  .player{position:relative;background:linear-gradient(180deg,#fffdf6,#fff2dd);border-radius:20px;
+    padding:10px 12px 12px;border:3px solid #fff;
+    box-shadow:0 7px 0 #d9b184, 0 11px 18px rgba(120,80,30,.22);text-align:center;transition:transform .2s;}
+  .player.p0{border-color:#bfe0ff;box-shadow:0 7px 0 #8fbdea,0 11px 18px rgba(20,60,120,.2);}
+  .player.p1{border-color:#ffd0bf;box-shadow:0 7px 0 #eaa088,0 11px 18px rgba(120,40,20,.2);}
+  .player.active{transform:translateY(-3px) scale(1.02);}
+  .player.active::after{content:"";position:absolute;inset:-3px;border-radius:20px;pointer-events:none;
+    border:3px solid var(--sun);box-shadow:0 0 0 4px rgba(255,210,63,.4),0 0 22px rgba(255,200,60,.7);animation:glow 1.2s ease-in-out infinite;}
+  @keyframes glow{0%,100%{opacity:.75}50%{opacity:1}}
+  .player .ava{font-size:2rem;line-height:1;filter:drop-shadow(0 3px 2px rgba(0,0,0,.15));}
+  .player .name-in{width:100%;text-align:center;font-family:'Baloo 2';font-weight:800;font-size:1rem;color:var(--ink);
+    background:#fff;border:2px dashed #d9b184;border-radius:10px;padding:5px 6px;margin:5px 0 4px;}
+  .player.p0 .name-in{border-color:#9cc8f5;} .player.p1 .name-in{border-color:#f5b39c;}
+  .player .name-in:focus{outline:none;border-style:solid;border-color:var(--leaf);}
+  .farm-pick{display:flex;gap:5px;justify-content:center;margin:2px 0 4px;}
+  .farm-pick.hidden{display:none;}
+  .farm-opt{font-size:1.15rem;line-height:1;cursor:pointer;background:#fff;border:2px solid #e8d3b4;border-radius:10px;
+    padding:4px 5px;transition:transform .1s;box-shadow:0 3px 0 rgba(200,160,100,.35);}
+  .farm-opt:active{transform:translateY(2px);}
+  .farm-opt.sel{border-color:var(--leaf);background:#eafbe0;box-shadow:0 3px 0 var(--leaf-dp);}
+  .farm-opt:focus-visible{outline:3px solid var(--tomato);outline-offset:1px;}
+  .player .score-lbl{font-weight:700;color:#9a7a4a;font-size:.66rem;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+  .player .score{font-family:'Rye',cursive;font-size:1.9rem;line-height:1.1;color:var(--leaf-dp);}
+  .player.p0 .score{color:#2f79e0;} .player.p1 .score{color:#e0553a;}
+  .player .flag{min-height:18px;margin-top:2px;font-weight:800;font-size:.82rem;color:#9a7a4a;}
+  .player.active .flag{color:#c67f10;}
+  .vs{align-self:center;font-family:'Rye',cursive;font-size:1rem;color:#fff;background:var(--soil-dp);
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 0 #3a230f,0 7px 10px rgba(0,0,0,.2);transform:rotate(-6deg);flex:none;}
+  .tip{background:rgba(255,255,255,.72);border-radius:14px;padding:10px 12px;font-size:.8rem;font-weight:600;color:#6b4a26;
+    box-shadow:0 4px 0 rgba(150,110,60,.25);}
+  .tip b{color:var(--leaf-dp);}
+
+  /* ================= OVERLAYS ================= */
+  .overlay{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;
+    background:radial-gradient(circle at center, rgba(40,60,15,.5), rgba(25,35,8,.82));backdrop-filter:blur(5px);}
+  .overlay.show{display:flex;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{background:linear-gradient(180deg,#fffaf0,#fdeccf);border-radius:26px;padding:24px 24px 22px;text-align:center;
+    max-width:min(94vw,540px);margin:auto;border:5px solid #fff;
+    box-shadow:0 22px 60px rgba(0,0,0,.45), inset 0 0 0 4px var(--sun);
+    animation:bloom .45s cubic-bezier(.2,1.35,.35,1) both;}
+  @keyframes bloom{0%{transform:scale(.5) rotate(-5deg);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1) rotate(0);opacity:1}}
+  .modal h2{font-family:'Rye',cursive;color:var(--leaf-dp);font-size:1.4rem;margin-bottom:8px;line-height:1.1;}
+  .modal p{color:#6b4a26;font-weight:600;font-size:1rem;margin-bottom:6px;}
+  .modal .big-emoji{font-size:3.2rem;line-height:1;margin-bottom:6px;}
+
+  /* challenge modal */
+  .challenge .modal{max-height:calc(100dvh - 28px);overflow:auto;}
+  .q-eyebrow{font-family:'Rye',cursive;font-size:.95rem;color:var(--leaf);letter-spacing:.5px;}
+  .q-turn{font-weight:800;font-size:1.15rem;margin:6px 0 12px;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .q-turn .who{font-family:'Baloo 2';}
+  .q-turn .fava{font-size:1.5rem;}
+  .q-card{background:#fff;border-radius:20px;padding:22px 20px;margin:4px 0 16px;border:3px dashed #d9b184;
+    font-weight:700;font-size:clamp(1.15rem,3.6vw,1.55rem);color:var(--ink);line-height:1.3;box-shadow:0 5px 0 rgba(217,177,132,.5);}
+  .q-hint{font-size:.9rem;color:#9a7a4a;font-weight:600;margin-bottom:16px;}
+
+  /* game over */
+  .over-badge{font-size:4.2rem;line-height:1;animation:pop .5s cubic-bezier(.2,1.4,.4,1);}
+  .final-scores{display:flex;justify-content:center;gap:16px;margin:14px 0 18px;}
+  .fs{background:#fff;border-radius:16px;padding:10px 16px;min-width:110px;box-shadow:0 5px 0 rgba(200,160,100,.35);}
+  .fs .n{font-weight:800;color:#6b4a26;font-size:.92rem;}
+  .fs .v{font-family:'Rye',cursive;font-size:1.8rem;color:var(--leaf-dp);}
+  .fs.win{background:linear-gradient(180deg,#fff4c2,#ffe58a);box-shadow:0 5px 0 #e0b640;}
+  .fs.win .v{color:#c67f10;}
+
+  /* poison FX */
+  .potion-fx{position:fixed;z-index:70;pointer-events:none;width:112px;height:142px;
+    transform:translate(-50%,-50%) scale(.2);opacity:0;transition:opacity .2s;}
+  .potion-fx svg{width:100%;height:100%;display:block;filter:drop-shadow(0 8px 12px rgba(20,60,0,.4));}
+  .potion-fx.show{opacity:1;animation:potionIn .5s cubic-bezier(.2,1.5,.4,1) forwards, potShake .5s .5s ease-in-out;}
+  .potion-fx.hide{animation:potionOut .6s cubic-bezier(.5,0,.7,1) forwards;}
+  @keyframes potionIn{0%{transform:translate(-50%,-50%) scale(.2) rotate(-14deg);opacity:0}60%{transform:translate(-50%,-50%) scale(1.18) rotate(6deg)}100%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:1}}
+  @keyframes potShake{0%,100%{}25%{transform:translate(-50%,-50%) rotate(-6deg)}75%{transform:translate(-50%,-50%) rotate(6deg)}}
+  @keyframes potionOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-30%) scale(.15) rotate(20deg)}}
+  .confetti-pc{position:fixed;top:-6vh;z-index:65;pointer-events:none;font-size:22px;}
+
+  @media (max-height:620px){
+    .subtitle{display:none;} .sidebar .tip{display:none;} .title{font-size:clamp(1.4rem,4.6vw,2.2rem);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .veggie .emo,.veggie:hover .emo{animation:none!important}
+    .player.active::after{animation:none}
+    .potion-fx.show{animation:potionIn .01s forwards}
+  }
+</style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="sky"></div>
+    <div class="sun"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+    <div class="hills"></div>
+    <div class="fence"></div>
+    <div class="field"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <main class="app">
+    <div class="titlebar">
+      <div class="credit">@cataventoep</div>
+      <button class="fs-btn" id="fsBtn" title="Tela cheia" aria-label="Tela cheia">⛶</button>
+      <h1 class="title">Horta <span class="venom drip">Envenenada</span></h1>
+      <p class="subtitle">🌱 Cada fazendeiro esconde um veneno na horta. Colha sem morder o alimento envenenado! ☠️</p>
+    </div>
+
+    <div class="statusbar">
+      <div class="status-msg" id="statusMsg">Escolha o fazendeiro, digite os nomes e toque em Começar! 🌱</div>
+      <button class="btn btn-start" id="startBtn">Começar!</button>
+    </div>
+
+    <div class="layout">
+      <section class="board-wrap">
+        <div class="tray board-locked" id="tray" aria-label="Horta de alimentos"></div>
+      </section>
+
+      <aside class="sidebar" aria-label="Placar">
+        <div class="player p0" id="playerCard0">
+          <div class="ava" id="ava0">👨🏻‍🌾</div>
+          <input class="name-in" id="name0" value="Fazendeiro 1" maxlength="14" aria-label="Nome do Jogador 1">
+          <div class="farm-pick" id="farmPick0" aria-label="Escolha o fazendeiro do Jogador 1"></div>
+          <div class="score-lbl">🧺 Colheita</div>
+          <div class="score" id="score0">0</div>
+          <div class="flag" id="flag0">&nbsp;</div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="player p1" id="playerCard1">
+          <div class="ava" id="ava1">👩🏻‍🌾</div>
+          <input class="name-in" id="name1" value="Fazendeiro 2" maxlength="14" aria-label="Nome do Jogador 2">
+          <div class="farm-pick" id="farmPick1" aria-label="Escolha o fazendeiro do Jogador 2"></div>
+          <div class="score-lbl">🧺 Colheita</div>
+          <div class="score" id="score1">0</div>
+          <div class="flag" id="flag1">&nbsp;</div>
+        </div>
+        <div class="tip">🔒 <b>Fase secreta:</b> cada fazendeiro escolhe, escondido, um alimento para envenenar. Depois, revezem-se colhendo e respondendo aos desafios. <b>Quem morder o alimento envenenado perde!</b></div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- pass-device gate -->
+  <div class="overlay gate" id="gate">
+    <div class="modal">
+      <div class="big-emoji" id="gateEmoji">🤫</div>
+      <h2 id="gateTitle">Prontinho!</h2>
+      <p id="gateMsg"></p>
+      <button class="btn btn-go" id="gateBtn" style="margin-top:12px">Continuar</button>
+    </div>
+  </div>
+
+  <!-- challenge modal -->
+  <div class="overlay challenge" id="challengeOv">
+    <div class="modal">
+      <div class="q-eyebrow">Desafio da Horta 🌱</div>
+      <div class="q-turn" id="cTurn"></div>
+      <div class="q-card" id="cText"></div>
+      <div class="q-hint">Responda em voz alta para o outro fazendeiro 🎤</div>
+      <button class="btn btn-answer" id="contBtn">✓ Continuar o jogo (+1 colheita)</button>
+    </div>
+  </div>
+
+  <!-- game over -->
+  <div class="overlay over" id="over">
+    <div class="modal">
+      <div class="over-badge" id="overBadge">☠️</div>
+      <h2 id="overTitle"></h2>
+      <p id="overMsg"></p>
+      <div class="final-scores" id="finalScores"></div>
+      <button class="btn btn-again" id="againBtn">🔁 Jogar novamente</button>
+    </div>
+  </div>
+
+  <div class="potion-fx" id="potionFx" aria-hidden="true"></div>
+
+<script>
+(function(){
+  "use strict";
+  const reduce = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  /* ---- Content ---- */
+  const FOODS   = ['🥕','🍅','🌽','🥬','🍓','🥦','🍆','🥔','🫑','🥒','🧅','🍎','🥑','🍇','🍄','🍐'];
+  const FARMERS = ['👨🏻‍🌾','👨🏿‍🌾','👩🏻‍🌾','👩🏿‍🌾'];
+  const QUESTIONS = [
+    'O que te deixa muito feliz?',
+    'Qual o presente mais legal que você já ganhou?',
+    'O que te deixa triste?',
+    'O que você gostaria que mudasse no mundo?',
+    'O que te deixa muito bravo(a)?',
+    'Fale um motivo pelo qual você é grato(a).',
+    'Se você fosse um animal, qual seria?',
+    'Qual é o seu maior talento?',
+    'Pra você, o que o dia perfeito precisa ter?',
+    'Qual é o dia do seu aniversário?',
+    'Qual foi o dia mais especial da sua vida?',
+    'Você se considera uma pessoa mais tímida ou extrovertida?',
+    'Qual é o seu dia da semana favorito?',
+    'Conte uma piada.',
+    'Conte uma lembrança boa.',
+    'O que te deixa calmo(a)?',
+    'O que te deixa com medo?',
+    'Qual é o seu hobby favorito?',
+    'Fale um filme que você gosta.',
+    'Fale um personagem que você gosta.',
+    'Qual é a sua comida favorita?',
+    'Qual é o seu animal favorito?',
+    'Qual é a sua brincadeira favorita?',
+    'Qual é a sua matéria favorita na escola?',
+    'O que você mais gosta de fazer no fim de semana?',
+    'Se você pudesse viajar para qualquer lugar, para onde iria?',
+    'Qual é a sua cor favorita?',
+    'Você prefere praia ou piscina?',
+    'Qual é o seu desenho favorito?',
+    'Qual é a sua sobremesa favorita?',
+    'Se você pudesse ter qualquer animal de estimação, qual teria?',
+    'O que você mais gosta de fazer nas férias?',
+    'Qual é o seu jogo favorito?',
+    'Você prefere assistir a filmes ou séries?',
+    'Qual profissão você gostaria de ter quando crescer?',
+    'Se você pudesse ter um superpoder, qual escolheria?',
+    'Qual foi o melhor passeio que você já fez?',
+    'O que sempre consegue fazer você rir?',
+    'Se você pudesse aprender algo novo hoje, o que escolheria?',
+    'Fale algo que você faz muito bem.'
+  ];
+
+  /* ---- Poison flask FX ---- */
+  const POTION = `<svg viewBox="0 0 118 150">
+    <defs>
+      <radialGradient id="pglow" cx="50%" cy="60%" r="55%"><stop offset="0%" stop-color="#c6ff6a" stop-opacity=".9"/><stop offset="100%" stop-color="#c6ff6a" stop-opacity="0"/></radialGradient>
+      <linearGradient id="pliq" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a6ff4d"/><stop offset="100%" stop-color="#2f9e07"/></linearGradient>
+      <clipPath id="pbody"><circle cx="59" cy="92" r="36"/></clipPath>
+    </defs>
+    <ellipse cx="59" cy="96" rx="57" ry="52" fill="url(#pglow)"/>
+    <rect x="51" y="40" width="16" height="24" fill="rgba(232,255,222,.4)" stroke="#2f6b12" stroke-width="3.5"/>
+    <circle cx="59" cy="92" r="36" fill="rgba(232,255,222,.4)" stroke="#2f6b12" stroke-width="3.8"/>
+    <g clip-path="url(#pbody)">
+      <path d="M18,80 q10,-9 20,0 t20,0 t20,0 t22,0 V132 H18 Z" fill="url(#pliq)"/>
+      <circle cx="46" cy="100" r="4" fill="#eaffd0" opacity=".75"/>
+      <circle cx="68" cy="110" r="5.5" fill="#eaffd0" opacity=".6"/>
+      <circle cx="58" cy="92" r="3" fill="#eaffd0" opacity=".8"/>
+    </g>
+    <text x="59" y="103" font-size="30" text-anchor="middle">☠️</text>
+    <rect x="48" y="30" width="22" height="14" rx="4" fill="#b07a3c" stroke="#7c4f21" stroke-width="2"/>
+  </svg>`;
+
+  /* ---- State ---- */
+  const S={ phase:'ready', scores:[0,0], poison:[null,null], eaten:new Set(), turn:0, avatar:[0,2] };
+
+  /* ---- Elements ---- */
+  const tray=document.getElementById('tray'), statusMsg=document.getElementById('statusMsg'), startBtn=document.getElementById('startBtn');
+  const name0=document.getElementById('name0'), name1=document.getElementById('name1');
+  const ava0=document.getElementById('ava0'), ava1=document.getElementById('ava1');
+  const farmPick0=document.getElementById('farmPick0'), farmPick1=document.getElementById('farmPick1');
+  const potionFx=document.getElementById('potionFx');
+  const gate=document.getElementById('gate'), gateTitle=document.getElementById('gateTitle'), gateMsg=document.getElementById('gateMsg'), gateEmoji=document.getElementById('gateEmoji'), gateBtn=document.getElementById('gateBtn');
+  const challengeOv=document.getElementById('challengeOv'), cTurn=document.getElementById('cTurn'), cText=document.getElementById('cText'), contBtn=document.getElementById('contBtn');
+  const over=document.getElementById('over'), overBadge=document.getElementById('overBadge'), overTitle=document.getElementById('overTitle'), overMsg=document.getElementById('overMsg'), finalScores=document.getElementById('finalScores'), againBtn=document.getElementById('againBtn');
+  const foodEls=[];
+
+  function nm(i){ const v=(i===0?name0:name1).value.trim(); return v||('Fazendeiro '+(i+1)); }
+  function av(i){ return FARMERS[S.avatar[i]]; }
+
+  /* ---- Audio ---- */
+  let AC=null; function ac(){ if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}} return AC; }
+  function tone(f,t,d,type,v){ const a=ac(); if(!a)return; const o=a.createOscillator(),g=a.createGain(); o.type=type||'sine';o.frequency.value=f;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v||.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.03); }
+  function sGlug(){const a=ac();if(!a)return;const t=a.currentTime;for(let i=0;i<5;i++)tone(180-i*18,t+i*.08,.14,'sine',.14);}
+  function sDing(){const a=ac();if(!a)return;const t=a.currentTime;[660,990].forEach((f,i)=>tone(f,t+i*.08,.4,'triangle',.14));}
+  function sPluck(){const a=ac();if(!a)return;const t=a.currentTime;[523,784].forEach((f,i)=>tone(f,t+i*.07,.3,'sine',.15));}
+  function sBoom(){const a=ac();if(!a)return;const t=a.currentTime;tone(120,t,.5,'sawtooth',.2);tone(80,t+.05,.6,'square',.16);
+    for(let i=0;i<6;i++)tone(300-i*30,t+.1+i*.05,.2,'triangle',.08);}
+  function sWin(){const a=ac();if(!a)return;const t=a.currentTime;[523,659,784,1047,1319].forEach((f,i)=>tone(f,t+i*.12,.5,'triangle',.16));}
+
+  /* ---- Build board ---- */
+  function buildBoard(){
+    tray.innerHTML='';
+    FOODS.forEach((emo,i)=>{
+      const b=document.createElement('button');
+      b.className='veggie'; b.dataset.i=i; b.setAttribute('aria-label','Alimento '+(i+1));
+      b.innerHTML=`<span class="emo">${emo}</span><span class="badge basket">🧺</span><span class="badge skull">☠️</span>`;
+      b.addEventListener('click',()=>onFood(i));
+      tray.appendChild(b); foodEls[i]=b;
+    });
+  }
+
+  /* ---- Avatar pickers ---- */
+  function buildPickers(){
+    [farmPick0,farmPick1].forEach((wrap,p)=>{
+      wrap.innerHTML='';
+      FARMERS.forEach((f,idx)=>{
+        const btn=document.createElement('button');
+        btn.className='farm-opt'+(S.avatar[p]===idx?' sel':''); btn.textContent=f;
+        btn.setAttribute('aria-label','Fazendeiro '+(idx+1));
+        btn.addEventListener('click',()=>{ S.avatar[p]=idx; updateAvatars(); });
+        wrap.appendChild(btn);
+      });
+    });
+  }
+  function updateAvatars(){
+    ava0.textContent=av(0); ava1.textContent=av(1);
+    [[farmPick0,0],[farmPick1,1]].forEach(([wrap,p])=>{
+      [...wrap.children].forEach((btn,idx)=>btn.classList.toggle('sel',S.avatar[p]===idx));
+    });
+  }
+
+  /* ---- Status / turns ---- */
+  function setStatus(txt,cls){ statusMsg.textContent=txt; statusMsg.className='status-msg'+(cls?' '+cls:''); }
+  function setActive(idx){
+    document.getElementById('playerCard0').classList.toggle('active',idx===0);
+    document.getElementById('playerCard1').classList.toggle('active',idx===1);
+    document.getElementById('flag0').innerHTML = idx===0 ? flagText() : '&nbsp;';
+    document.getElementById('flag1').innerHTML = idx===1 ? flagText() : '&nbsp;';
+  }
+  function flagText(){ if(S.phase==='p1secret'||S.phase==='p2secret') return 'escondendo o veneno 🤫'; if(S.phase==='play') return 'sua vez! 🌱'; return '&nbsp;'; }
+  function lockBoard(lock){ tray.classList.toggle('board-locked',lock);
+    foodEls.forEach(b=>{ b.disabled = lock || b.classList.contains('eaten'); }); }
+
+  /* ---- Flow ---- */
+  function start(){
+    S.phase='p1secret'; S.scores=[0,0]; S.poison=[null,null]; S.eaten.clear(); S.turn=0;
+    updateScores(); clearMarks();
+    startBtn.style.display='none'; farmPick0.classList.add('hidden'); farmPick1.classList.add('hidden');
+    if(ac()&&ac().state==='suspended') ac().resume();
+    lockBoard(false); sizeTray();
+    setStatus(`${nm(0)}: esconda o SEU veneno num alimento 🧪  ( ${nm(1)}, não olhe! 🙈 )`,'p1');
+    setActive(0);
+  }
+
+  function onFood(i){
+    if(S.phase==='ready'||S.phase==='over') return;
+    const b=foodEls[i]; if(b.disabled) return;
+
+    if(S.phase==='p1secret'){
+      S.poison[0]=i; lockBoard(true);
+      poisonReveal(i,()=>{
+        showGate('🤫','Veneno escondido!',`Passe o aparelho para <b>${esc(nm(1))}</b>. Sem espiar, ${esc(nm(0))}! 🙈`,()=>{
+          S.phase='p2secret'; lockBoard(false);
+          setStatus(`${nm(1)}: esconda o SEU veneno num alimento 🧪  ( ${nm(0)}, não olhe! 🙈 )`,'p2');
+          setActive(1);
+        });
+      });
+      return;
+    }
+    if(S.phase==='p2secret'){
+      S.poison[1]=i; lockBoard(true);
+      poisonReveal(i,()=>{
+        showGate('🌱','Tudo pronto!',`Os dois venenos estão escondidos na horta! Comece, <b>${esc(nm(0))}</b>: colha um alimento!`,()=>{
+          S.phase='play'; S.turn=0; lockBoard(false);
+          setStatus(`Vez de ${nm(0)}: colha um alimento! 🧺`,'p1');
+          setActive(0);
+        });
+      });
+      return;
+    }
+    if(S.phase==='play'){
+      if(i===S.poison[0]||i===S.poison[1]){ loseGame(S.turn,i); return; }
+      lockBoard(true);
+      showChallenge(i);
+    }
+  }
+
+  // Persistente enquanto a aba fica aberta: sorteia sem repetir de um jogo
+  // para o outro até todas as 40 aparecerem, então reembaralha o conjunto.
+  let qBag=[];
+  function nextQuestion(){ if(qBag.length===0){ qBag=shuffle(QUESTIONS.slice()); } return qBag.pop(); }
+
+  function showChallenge(i){
+    cTurn.innerHTML=`<span class="fava">${av(S.turn)}</span><span class="who" style="color:${S.turn===0?'#2f79e0':'#e0553a'}">${esc(nm(S.turn))}</span>`;
+    cText.textContent=nextQuestion();
+    contBtn.onclick=()=>{
+      challengeOv.classList.remove('show');
+      S.scores[S.turn]++; updateScores(); markEaten(i);
+      S.turn=1-S.turn; lockBoard(false);
+      setStatus(`Vez de ${nm(S.turn)}: colha um alimento! 🧺`, S.turn===0?'p1':'p2');
+      setActive(S.turn);
+    };
+    challengeOv.classList.add('show'); sDing(); setTimeout(()=>contBtn.focus(),60);
+  }
+
+  function loseGame(loser,i){
+    S.phase='over'; lockBoard(true);
+    const winner=1-loser;
+    poisonReveal(i,()=>{},true);
+    tray.classList.add('shake'); setTimeout(()=>tray.classList.remove('shake'),500);
+    [S.poison[0],S.poison[1]].forEach(p=>{ if(p!=null) foodEls[p].classList.add('poison-reveal'); });
+    sBoom();
+    setTimeout(()=>{
+      potionFx.classList.remove('show','hide'); potionFx.innerHTML='';
+      overBadge.textContent='☠️';
+      overTitle.textContent=`${nm(loser)} mordeu o alimento envenenado!`;
+      overMsg.innerHTML=`🏆 <b>${esc(nm(winner))}</b> venceu a colheita! 🎉`;
+      finalScores.innerHTML=
+        `<div class="fs ${winner===0?'win':''}"><div class="n">${av(0)} ${esc(nm(0))}</div><div class="v">${S.scores[0]}</div></div>`+
+        `<div class="fs ${winner===1?'win':''}"><div class="n">${av(1)} ${esc(nm(1))}</div><div class="v">${S.scores[1]}</div></div>`;
+      over.classList.add('show'); sWin(); confetti();
+      setStatus(`Fim de jogo! ${nm(winner)} venceu 🏆`,'warn'); setActive(-1);
+    },1050);
+  }
+
+  /* ---- Poison reveal FX ---- */
+  function poisonReveal(i,cb,keep){
+    const cell=foodEls[i]; const r=cell.getBoundingClientRect();
+    potionFx.innerHTML=POTION;
+    potionFx.style.left=(r.left+r.width/2)+'px';
+    potionFx.style.top =(r.top +r.height/2)+'px';
+    potionFx.classList.remove('hide'); potionFx.classList.add('show'); sGlug();
+    const hideDelay=keep?1400:900, endDelay=keep?1500:1500;
+    if(!keep) setTimeout(()=>{ potionFx.classList.add('hide'); }, hideDelay);
+    setTimeout(()=>{ if(!keep){potionFx.classList.remove('show','hide');} if(cb)cb(); }, endDelay);
+  }
+
+  /* ---- Marks / scores ---- */
+  function markEaten(i){ S.eaten.add(i); const b=foodEls[i]; b.classList.add('eaten'); b.disabled=true; sPluck(); }
+  function clearMarks(){ foodEls.forEach(b=>{ b.classList.remove('eaten','poison-reveal'); b.disabled=false; }); }
+  function updateScores(){ document.getElementById('score0').textContent=S.scores[0]; document.getElementById('score1').textContent=S.scores[1]; }
+
+  /* ---- Gate ---- */
+  function showGate(emoji,title,msgHtml,cb){
+    gateEmoji.textContent=emoji; gateTitle.textContent=title; gateMsg.innerHTML=msgHtml;
+    gate.classList.add('show'); setTimeout(()=>gateBtn.focus(),50);
+    gateBtn.onclick=()=>{ gate.classList.remove('show'); cb&&cb(); };
+  }
+
+  /* ---- Confetti ---- */
+  function confetti(){ if(reduce) return; const cols=['🥕','🍅','🌽','🥬','🍓','🌱','✨','🎉','⭐'];
+    for(let i=0;i<42;i++){ const c=document.createElement('div'); c.className='confetti-pc'; c.textContent=pick(cols);
+      c.style.left=(Math.random()*100)+'vw'; c.style.fontSize=(16+Math.random()*18)+'px';
+      const dur=3+Math.random()*2.5; c.style.animation=`cfall ${dur}s linear ${Math.random()*.6}s forwards`;
+      document.body.appendChild(c); setTimeout(()=>c.remove(),(dur+1)*1000); } }
+  const st=document.createElement('style');
+  st.textContent='@keyframes cfall{0%{transform:translateY(-10vh) rotate(0)}100%{transform:translateY(112vh) rotate(540deg)}}';
+  document.head.appendChild(st);
+
+  /* ---- Reset ---- */
+  function reset(){
+    over.classList.remove('show'); challengeOv.classList.remove('show');
+    S.phase='ready'; S.scores=[0,0]; S.poison=[null,null]; S.eaten.clear(); S.turn=0;
+    updateScores(); clearMarks(); lockBoard(true);
+    startBtn.style.display=''; farmPick0.classList.remove('hidden'); farmPick1.classList.remove('hidden');
+    setStatus('Escolha o fazendeiro, digite os nomes e toque em Começar! 🌱');
+    setActive(-1); sizeTray();
+  }
+
+  /* ---- Events ---- */
+  startBtn.addEventListener('click',start);
+  againBtn.addEventListener('click',reset);
+  [name0,name1].forEach(inp=>inp.addEventListener('input',()=>{
+    if(S.phase==='p1secret') setStatus(`${nm(0)}: esconda o SEU veneno num alimento 🧪  ( ${nm(1)}, não olhe! 🙈 )`,'p1');
+    else if(S.phase==='p2secret') setStatus(`${nm(1)}: esconda o SEU veneno num alimento 🧪  ( ${nm(0)}, não olhe! 🙈 )`,'p2');
+    else if(S.phase==='play') setStatus(`Vez de ${nm(S.turn)}: colha um alimento! 🧺`,S.turn===0?'p1':'p2');
+  }));
+
+  /* ---- Layout sizing (one screen) ---- */
+  function sizeTray(){
+    const wrap=tray.parentElement; if(!wrap)return;
+    const cols=4, rows=4;
+    tray.style.gridTemplateColumns='repeat('+cols+',1fr)';
+    tray.style.gridTemplateRows='repeat('+rows+',1fr)';
+    const availW=wrap.clientWidth, availH=wrap.clientHeight;
+    if(availW<10||availH<10)return;
+    const ratio=cols/rows; let w=availW, h=w/ratio;
+    if(h>availH){ h=availH; w=h*ratio; }
+    w=Math.floor(w); h=Math.floor(h);
+    tray.style.width=w+'px'; tray.style.height=h+'px';
+    const cell=Math.min(w/cols,h/rows);
+    tray.style.fontSize=Math.max(18,Math.floor(cell*0.52))+'px';
+  }
+  let _rz; window.addEventListener('resize',()=>{ clearTimeout(_rz); _rz=setTimeout(sizeTray,120); });
+  window.addEventListener('orientationchange',()=>setTimeout(sizeTray,200));
+  window.addEventListener('resize',()=>{ if(potionFx.classList.contains('show')) potionFx.classList.remove('show'); });
+
+  /* ---- Fullscreen ---- */
+  const fsBtn=document.getElementById('fsBtn');
+  function toggleFS(){ const de=document.documentElement;
+    if(!document.fullscreenElement){ (de.requestFullscreen||de.webkitRequestFullscreen||function(){}).call(de); }
+    else { (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); } }
+  fsBtn.addEventListener('click',toggleFS);
+  document.addEventListener('fullscreenchange',()=>{ fsBtn.textContent=document.fullscreenElement?'🡼 Sair':'⛶ Tela cheia'; setTimeout(sizeTray,60); });
+
+  /* ---- Init ---- */
+  buildBoard(); buildPickers(); updateAvatars(); lockBoard(true); setActive(-1);
+  requestAnimationFrame(()=>{ sizeTray(); setTimeout(sizeTray,250); });
+})();
+</script>
+</body>
+</html>
